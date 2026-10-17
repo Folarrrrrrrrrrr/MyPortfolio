@@ -462,13 +462,13 @@ export default function Home() {
             © 2024 Folawe Oluwole. ALL RIGHTS RESERVED.
           </div>
           <div className="flex gap-6 text-xs font-mono text-muted-foreground">
-            <Link href="#" className="hover:text-primary transition-colors">
+            <Link href="https://github.com/folarrrrrrrrrrr" className="hover:text-primary transition-colors">
               GITHUB
             </Link>
-            <Link href="#" className="hover:text-primary transition-colors">
+            <Link href="https://www.linkedin.com/in/folawe-oluwole" className="hover:text-primary transition-colors">
               LINKEDIN
             </Link>
-            <Link href="#" className="hover:text-primary transition-colors">
+            <Link href="https://twitter.com/folarrrrrrrrrrr" className="hover:text-primary transition-colors">
               TWITTER
             </Link>
           </div>

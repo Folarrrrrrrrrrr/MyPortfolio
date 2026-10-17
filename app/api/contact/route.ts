@@ -1,119 +1,111 @@
+
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
 
-type ContactSubmission = {
-  name: string;
-  email: string;
-  message: string;
-  company: string;
-};
+export const runtime = "nodejs";
 
-function isContactSubmission(value: unknown): value is ContactSubmission {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "name" in value &&
-    typeof value.name === "string" &&
-    "email" in value &&
-    typeof value.email === "string" &&
-    "message" in value &&
-    typeof value.message === "string" &&
-    "company" in value &&
-    typeof value.company === "string"
-  );
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
-  let payload: unknown;
-
   try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: "Please submit the form with valid information." },
-      { status: 400 },
-    );
-  }
+    const body: unknown = await request.json();
 
-  if (!isContactSubmission(payload)) {
-    return NextResponse.json(
-      { error: "Please complete all contact form fields." },
-      { status: 400 },
-    );
-  }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json(
+        { error: "Invalid request body." },
+        { status: 400 }
+      );
+    }
 
-  const name = payload.name.trim();
-  const email = payload.email.trim();
-  const message = payload.message.trim();
+    const { name, email, message, company } = body as Record<
+      string,
+      unknown
+    >;
 
-  if (payload.company.trim()) {
-    return NextResponse.json(
-      { error: "Unable to submit this message." },
-      { status: 400 },
-    );
-  }
+    // Honeypot: silently accept the submission without sending an email.
+    if (typeof company === "string" && company.trim()) {
+      return NextResponse.json({ success: true });
+    }
 
-  if (
-    name.length === 0 ||
-    name.length > 120 ||
-    email.length > 254 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-    message.length === 0 ||
-    message.length > 5000
-  ) {
-    return NextResponse.json(
-      { error: "Please check your name, email, and message and try again." },
-      { status: 400 },
-    );
-  }
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof message !== "string"
+    ) {
+      return NextResponse.json(
+        { error: "Please provide a valid name, email, and message." },
+        { status: 400 }
+      );
+    }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.CONTACT_FROM_EMAIL;
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+    const cleanMessage = message.trim();
 
-  if (!apiKey || !from) {
-    console.error(
-      "Contact form email is not configured. Set RESEND_API_KEY and CONTACT_FROM_EMAIL.",
-    );
-    return NextResponse.json(
-      { error: "The contact form is not configured yet. Please try again later." },
-      { status: 503 },
-    );
-  }
+    if (
+      !cleanName ||
+      cleanName.length > 120 ||
+      !cleanEmail ||
+      cleanEmail.length > 254 ||
+      !cleanMessage ||
+      cleanMessage.length > 5000
+    ) {
+      return NextResponse.json(
+        { error: "Please check your details and try again." },
+        { status: 400 }
+      );
+    }
 
-  let resendResponse: Response;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return NextResponse.json(
+        { error: "Please enter a valid email address." },
+        { status: 400 }
+      );
+    }
 
-  try {
-    resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: ["oluwolefolawe@gmail.com"],
-        reply_to: email,
-        subject: "New portfolio contact form message",
-        text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-      }),
+    const apiKey = process.env.RESEND_API_KEY;
+    const recipient = process.env.MY_PERSONAL_EMAIL;
+    const sender = process.env.CONTACT_FROM_EMAIL;
+
+    if (!apiKey || !recipient || !sender) {
+      console.error("Contact form environment variables are missing.");
+
+      return NextResponse.json(
+        { error: "The contact service is temporarily unavailable." },
+        { status: 500 }
+      );
+    }
+
+    const { error } = await resend.emails.send({
+      from: sender,
+      to: recipient,
+      subject: `New Portfolio Message from ${cleanName}`,
+      replyTo: cleanEmail,
+      text: [
+        `Name: ${cleanName}`,
+        `Email: ${cleanEmail}`,
+        "",
+        "Message:",
+        cleanMessage,
+      ].join("\n"),
     });
+
+    if (error) {
+      console.error("Resend email error:", error);
+
+      return NextResponse.json(
+        { error: "Unable to send your message. Please try again later." },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Contact form email request failed.", error);
+    console.error("Contact form request error:", error);
+
     return NextResponse.json(
-      { error: "Unable to send your message right now. Please try again later." },
-      { status: 502 },
+      { error: "Unable to process your request. Please try again later." },
+      { status: 500 }
     );
   }
-
-  if (!resendResponse.ok) {
-    const providerError = await resendResponse.text();
-    console.error(
-      `Contact form email provider returned ${resendResponse.status}: ${providerError}`,
-    );
-    return NextResponse.json(
-      { error: "Unable to send your message right now. Please try again later." },
-      { status: 502 },
-    );
-  }
-
-  return NextResponse.json({ message: "Your message was sent." });
 }
