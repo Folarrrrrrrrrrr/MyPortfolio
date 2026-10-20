@@ -178,7 +178,7 @@ export default function Home() {
                   />
                 </Link>
                 <Link
-                  href="https://www.linkedin.com/in/folawole-oluwole"
+                  href="https://www.linkedin.com/in/folawe-oluwole"
                   aria-label="LinkedIn"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" })
