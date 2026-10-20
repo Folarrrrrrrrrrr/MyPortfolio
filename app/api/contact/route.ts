@@ -4,8 +4,6 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
   try {
     const body: unknown = await request.json();
@@ -76,6 +74,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
       from: sender,
       to: recipient,
@@ -98,7 +97,6 @@ export async function POST(request: Request) {
         { status: 502 }
       );
     }
-
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Contact form request error:", error);

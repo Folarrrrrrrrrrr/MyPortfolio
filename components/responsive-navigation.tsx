@@ -38,15 +38,12 @@ export function ResponsiveNavigation() {
         type="button"
         variant="ghost"
         size="icon"
-        aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
-        title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+        aria-label="Toggle color theme"
+        title="Toggle color theme"
         onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       >
-        {resolvedTheme === "dark" ? (
-          <Sun aria-hidden="true" />
-        ) : (
-          <Moon aria-hidden="true" />
-        )}
+        <Sun aria-hidden="true" className="hidden dark:block" />
+        <Moon aria-hidden="true" className="block dark:hidden" />
       </Button>
 
       <Button

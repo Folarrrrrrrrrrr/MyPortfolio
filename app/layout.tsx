@@ -20,9 +20,9 @@ const siteUrl =
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "http://localhost:3000";
 
-const title = "Dev Starter by Zippystarter";
+const title = "Folawe Oluwole | Software Engineer & Web Developer";
 const description =
-  "Dev Starter is an open source, one page developer portfolio template.";
+  " Folawe Oluwole is a software engineer and web developer specializing in building high-quality web applications. Explore his portfolio to see his work and get in touch for collaborations or inquiries.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

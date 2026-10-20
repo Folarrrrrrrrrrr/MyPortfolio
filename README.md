@@ -40,12 +40,13 @@ mix-blend-mode.
 
 ## Contact form email
 
-The contact form sends messages to `oluwolefolawe@gmail.com` through the
-[Resend API](https://resend.com). Configure these server-side environment
-variables in your local `.env.local` file and in your deployment environment:
+The contact form sends messages through the [Resend API](https://resend.com).
+Configure these server-side environment variables in your local `.env.local`
+file and in your deployment environment:
 
 ```text
 RESEND_API_KEY=re_your_api_key
+MY_PERSONAL_EMAIL=you@example.com
 CONTACT_FROM_EMAIL="Portfolio Contact <contact@your-verified-domain.com>"
 ```
 

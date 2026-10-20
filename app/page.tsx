@@ -8,8 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { ContactForm } from "@/components/contact-form";
 import {
   Mail,
   ExternalLink,
@@ -194,7 +193,7 @@ export default function Home() {
                   </svg>
                 </Link>
                 <Link
-                  href="mailto:oluwolefolawe@gmail.com"
+                  href={`mailto:${process.env.MY_PERSONAL_EMAIL}`}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" })
                   )}
@@ -413,44 +412,7 @@ export default function Home() {
             </p>
           </div>
 
-          <form className="grid gap-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="text-xs font-mono text-muted-foreground"
-                >
-                  NAME
-                </label>
-                <Input id="name" placeholder="John Doe" />
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="email"
-                  className="text-xs font-mono text-muted-foreground"
-                >
-                  EMAIL
-                </label>
-                <Input id="email" type="email" placeholder="john@example.com" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="message"
-                className="text-xs font-mono text-muted-foreground"
-              >
-                MESSAGE
-              </label>
-              <Textarea
-                id="message"
-                placeholder="Enter your message..."
-                className="min-h-[150px]"
-              />
-            </div>
-            <Button type="submit" className="w-full" size="lg">
-              SEND TRANSMISSION
-            </Button>
-          </form>
+          <ContactForm />
         </div>
       </Container>
       <Container
